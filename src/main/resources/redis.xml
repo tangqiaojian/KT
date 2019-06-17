@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+         http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://www.springframework.org/schema/cache/spring-cache.xsd">
+        <!-- jedis 配置 -->
+        <bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
+            <!-- 最大空闲连接数 -->
+            <property name="maxIdle" value="300" />
+            <!-- 最小空闲连接数 -->
+            <property name="minIdle" value="1" />
+            <property name="maxWaitMillis" value="1000" />
+            <!-- 在获取连接的时候检查有效性 -->
+            <property name="testOnBorrow" value="false" />
+        </bean>
+        <!-- redis服务器中心 -->
+        <bean id="redisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+            <property name="poolConfig" ref="poolConfig" />
+            <property name="port" value="6379" />
+            <property name="hostName" value="localhost" />
+            <property name="password" value="" />
+            <property name="timeout" value="10000" />
+            <property name="database" value="0" />
+        </bean>
+
+        <!-- redis操作模板，面向对象的模板 -->
+        <bean id="redisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate">
+            <property name="connectionFactory" ref="redisConnectionFactory" />
+            <!-- 将key和value序列化后存入redis，读取时再进行反序列化 -->
+            <!-- 对key的默认序列化器 -->
+            <property name="keySerializer">
+                <bean class="org.springframework.data.redis.serializer.StringRedisSerializer" />
+            </property>
+            <!-- 对value的默认序列化器 -->
+            <property name="valueSerializer">
+                <bean class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer"/>
+            </property>
+            <!-- 对hash结构数据的hashkey的默认序列化器 -->
+            <property name="hashKeySerializer">
+                <bean class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer" />
+            </property>
+            <!-- 对hash结构数据的hashvalue的默认序列化器 -->
+            <property name="hashValueSerializer">
+                <bean class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer" />
+            </property>
+        </bean>
+</beans>
